@@ -1,4 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.d3||(g.d3 = {}));g=(g.layout||(g.layout = {}));g.cloud = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// This is a fork from https://github.com/jasondavies/d3-cloud/tree/f00a511341fb4c9d9fce2faacea212687d653915 with the modifications from
+// https://github.com/john-guerra/d3-cloud/tree/89a91fc0b56dc35cf3ab7bc42af4f6517a0ded57
+
 // Word cloud layout by Jason Davies, https://www.jasondavies.com/wordcloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 
@@ -22,6 +25,7 @@ module.exports = function() {
       timeInterval = Infinity,
       event = dispatch("word", "end"),
       timer = null,
+      overflow = false,
       random = Math.random,
       cloud = {},
       canvas = cloudCanvas;
@@ -121,7 +125,11 @@ module.exports = function() {
       tag.y = startY + dy;
 
       if (tag.x + tag.x0 < 0 || tag.y + tag.y0 < 0 ||
-          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) continue;
+          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) {
+            if (!overflow) {
+              continue;
+            }
+          }
       // TODO only check for collisions within current bounds.
       if (!bounds || !cloudCollide(tag, board, size[0])) {
         if (!bounds || collideRects(tag, bounds)) {
@@ -191,6 +199,12 @@ module.exports = function() {
 
   cloud.padding = function(_) {
     return arguments.length ? (padding = functor(_), cloud) : padding;
+  };
+
+  cloud.overflow = function (_) {
+    if (!arguments.length) return overflow;
+    overflow = d3.functor(x);
+    return cloud;
   };
 
   cloud.random = function(_) {
@@ -400,11 +414,11 @@ var spirals = {
 };
 
 },{"d3-dispatch":2}],2:[function(require,module,exports){
-// https://d3js.org/d3-dispatch/ Version 1.0.2. Copyright 2016 Mike Bostock.
+// https://d3js.org/d3-dispatch/ Version 1.0.3. Copyright 2017 Mike Bostock.
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.d3 = global.d3 || {})));
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.d3 = global.d3 || {})));
 }(this, (function (exports) { 'use strict';
 
 var noop = {value: function() {}};
