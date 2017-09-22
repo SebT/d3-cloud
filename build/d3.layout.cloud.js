@@ -202,9 +202,7 @@ module.exports = function() {
   };
 
   cloud.overflow = function (_) {
-    if (!arguments.length) return overflow;
-    overflow = d3.functor(x);
-    return cloud;
+    return arguments.length ? (overflow = functor(_), cloud) : overflow;    
   };
 
   cloud.random = function(_) {
