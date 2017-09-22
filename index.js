@@ -1,3 +1,6 @@
+// This is a fork from https://github.com/jasondavies/d3-cloud/tree/f00a511341fb4c9d9fce2faacea212687d653915 with the modifications from
+// https://github.com/john-guerra/d3-cloud/tree/89a91fc0b56dc35cf3ab7bc42af4f6517a0ded57
+
 // Word cloud layout by Jason Davies, https://www.jasondavies.com/wordcloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 
@@ -21,6 +24,7 @@ module.exports = function() {
       timeInterval = Infinity,
       event = dispatch("word", "end"),
       timer = null,
+      overflow = false,
       random = Math.random,
       cloud = {},
       canvas = cloudCanvas;
@@ -120,7 +124,11 @@ module.exports = function() {
       tag.y = startY + dy;
 
       if (tag.x + tag.x0 < 0 || tag.y + tag.y0 < 0 ||
-          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) continue;
+          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) {
+            if (!overflow) {
+              continue;
+            }
+          }
       // TODO only check for collisions within current bounds.
       if (!bounds || !cloudCollide(tag, board, size[0])) {
         if (!bounds || collideRects(tag, bounds)) {
@@ -190,6 +198,12 @@ module.exports = function() {
 
   cloud.padding = function(_) {
     return arguments.length ? (padding = functor(_), cloud) : padding;
+  };
+
+  cloud.overflow = function (_) {
+    if (!arguments.length) return overflow;
+    overflow = d3.functor(x);
+    return cloud;
   };
 
   cloud.random = function(_) {
